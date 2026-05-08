@@ -1,0 +1,43 @@
+[gd_scene format=3 uid="uid://bglhpt3owr163"]
+
+[ext_resource type="Script" uid="uid://dh7rdk7wcak5d" path="res://src/UI/MainMenuButtonsController.cs" id="1_t7byy"]
+
+[node name="MainMenu_Button_List" type="BoxContainer" unique_id=1371258766]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -85.5
+offset_top = -52.0
+offset_right = 85.5
+offset_bottom = 52.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+vertical = true
+script = ExtResource("1_t7byy")
+
+[node name="Button_NewGame" type="Button" parent="." unique_id=1509714340]
+layout_mode = 2
+text = "New game"
+
+[node name="Button_SaveGame" type="Button" parent="." unique_id=126809008]
+layout_mode = 2
+text = "Save game"
+
+[node name="Button_LoadGame" type="Button" parent="." unique_id=2012989331]
+layout_mode = 2
+text = "Load game"
+
+[node name="Button_Options" type="Button" parent="." unique_id=880271314]
+layout_mode = 2
+text = "Options"
+
+[node name="Button_ExitToMenu" type="Button" parent="." unique_id=2084657109]
+layout_mode = 2
+text = "Return to main menu"
+
+[node name="Button_ExitToDesktop" type="Button" parent="." unique_id=68086919]
+layout_mode = 2
+text = "Quit to desktop"
