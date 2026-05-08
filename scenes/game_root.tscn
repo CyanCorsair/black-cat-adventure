@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://bxt1cf42s5yrp"]
+
+[ext_resource type="Script" uid="uid://8pf4b5t0sart" path="res://src/BlackCatAdventure.cs" id="1_78s5d"]
+
+[node name="GameRoot" type="Node" unique_id=874026381]
+script = ExtResource("1_78s5d")
