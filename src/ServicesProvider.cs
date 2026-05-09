@@ -17,8 +17,6 @@ public partial class ServicesProvider : Node
         
         _services = new ServiceCollection();
         
-        // Add services here
-        
         _serviceProvider = _services.BuildServiceProvider();
     }
 
