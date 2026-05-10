@@ -5,3 +5,5 @@
 *.uid
 .editorconfig
 .gitattributes
+docs
+assets/**/*.import

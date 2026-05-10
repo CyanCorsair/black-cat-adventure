@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://donx26vu7buox"]
+
+[ext_resource type="Script" uid="uid://bx4o0xrcfwwam" path="res://src/GameObjects/DefaultSolarObject.cs" id="1_pnuw3"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_rngrc"]
+
+[node name="DefaultSolarObject" type="Node2D" unique_id=1588183813]
+script = ExtResource("1_pnuw3")
+
+[node name="Icon2D" type="Sprite2D" parent="." unique_id=841927814]
+
+[node name="InteractionArea2D" type="Area2D" parent="." unique_id=1519860295]
+
+[node name="InteractionCollision2D" type="CollisionShape2D" parent="InteractionArea2D" unique_id=160228231]
+shape = SubResource("CircleShape2D_rngrc")
