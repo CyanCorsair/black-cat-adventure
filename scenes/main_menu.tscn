@@ -39,5 +39,8 @@ text = "Game TItle"
 label_settings = SubResource("LabelSettings_l6cm7")
 
 [node name="MainMenu_Button_List" parent="." unique_id=1371258766 instance=ExtResource("2_ekxnf")]
-layout_mode = 0
-anchors_preset = 0
+layout_mode = 1
+offset_left = -95.5
+offset_top = -89.0
+offset_right = 95.5
+offset_bottom = 89.0
