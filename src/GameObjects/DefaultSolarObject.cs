@@ -19,13 +19,22 @@ public partial class DefaultSolarObject : Node2D
     
     public override void _Ready()
     {
+        GlobalScale = new Vector2(
+            (float)_orbitalBodyDefinition.PhysicalRadius,
+            (float)_orbitalBodyDefinition.PhysicalRadius);
+        
         _orbitalBodyIcon = GetNode<Sprite2D>("Icon2D");
+        _orbitalBodyIcon.GlobalScale = GlobalScale;
         _interactionArea = GetNode<Area2D>("InteractionArea2D");
+        // _interactionArea.GlobalScale = new Vector2(GlobalScale.X * 1.15f, GlobalScale.Y * 1.15f);
+        _interactionArea.MouseEntered += OnMouseEnterInteractionArea;
+        _interactionArea.MouseExited += OnMouseExitInteractionArea;
+        
 
         var textureFile = GD.Load<Texture2D>(_orbitalBodyDefinition.IconPath);
         _orbitalBodyIcon.Texture = textureFile;
 
-        _parent = GetParent<DefaultSolarObject>();
+        _parent = _orbitalBodyDefinition.ParentId is not null ? GetParent<DefaultSolarObject>() : null;
         Id = _orbitalBodyDefinition.Id;
 
         _currentAngle = OrbitalBodyDefinition.InitialAngle;
@@ -33,7 +42,7 @@ public partial class DefaultSolarObject : Node2D
 
     public override void _Process(double delta)
     {
-        var origin = _parent?.GlobalPosition ?? GetViewport().GetVisibleRect().Size / 2;
+        var origin = _parent?.GlobalPosition ?? GetViewport().GetVisibleRect().GetCenter();
         
         if (_orbitalBodyDefinition is not null)
         {
@@ -43,5 +52,15 @@ public partial class DefaultSolarObject : Node2D
                 (float)(Math.Sin(_currentAngle) * _orbitalBodyDefinition.OrbitalRadius)
             );
         }
+    }
+
+    private void OnMouseEnterInteractionArea()
+    {
+        GD.Print($"I'm hovering over {_orbitalBodyDefinition.Name}, mass: {_orbitalBodyDefinition.Mass}");
+    }
+    
+    private void OnMouseExitInteractionArea()
+    {
+        GD.Print($"I'm leaving {_orbitalBodyDefinition.Name}, mass: {_orbitalBodyDefinition.Mass}");
     }
 }

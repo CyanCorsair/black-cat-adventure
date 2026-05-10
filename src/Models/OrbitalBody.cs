@@ -52,11 +52,13 @@ public class OrbitalBody : IGameJsonSerializable
             : randomSeed.NextDouble() * (
                 PhysicsConstants.MaxDensity - PhysicsConstants.MinDensity) + PhysicsConstants.MinDensity;
         Mass = Density * (4.0 / 3.0) * Math.PI * Math.Pow(PhysicalRadius, 3);
-        Mass = Math.Clamp(Mass, 10, 20);
         
         if (OrbitalRadius == 0)
         {
-            OrbitalRadius = baseDistance * Math.Pow(spacingFactor, index);
+            OrbitalRadius = Math.Clamp(
+                baseDistance * Math.Pow(spacingFactor, index),
+                PhysicsConstants.MinOrbitalRadius,
+                PhysicsConstants.MaxOrbitalRadius);
             OrbitalSpeed = Math.Sqrt(starMass / OrbitalRadius) * PhysicsConstants.GravitationalConstant;
             InitialAngle = (2 * Math.PI / planetCount) * index +
                            (randomSeed.NextDouble() * PhysicsConstants.SpreadVariance);

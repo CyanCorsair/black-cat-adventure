@@ -1,6 +1,11 @@
 [gd_scene format=3 uid="uid://q011lj8m3eg4"]
 
 [ext_resource type="Script" uid="uid://c3nirganm130o" path="res://src/GameWorld2d.cs" id="1_ftb0i"]
+[ext_resource type="Script" uid="uid://doxq0hejfc15o" path="res://src/GameCamera.cs" id="2_iwvfb"]
 
 [node name="GameWorld" type="Node2D" unique_id=2125571006]
 script = ExtResource("1_ftb0i")
+
+[node name="GameCamera" type="Camera2D" parent="." unique_id=534735544]
+zoom = Vector2(0.3, 0.3)
+script = ExtResource("2_iwvfb")

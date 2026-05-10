@@ -14,8 +14,26 @@ public partial class GameWorld2d : Node2D
     private SolarSystem _solarSystem;
     private PackedScene _defaultScene = GD.Load<PackedScene>("res://scenes/components/default_solar_object.tscn");
     
+    private Camera2D _camera;
+    private TextureRect _backgroundSprite;
+    
     public override void _Ready()
     {
+        _camera = GetNode<Camera2D>("GameCamera");
+        var canvasLayer = new CanvasLayer();
+        canvasLayer.Layer = -1; // behind everything
+
+        _backgroundSprite = new TextureRect();
+        _backgroundSprite.Texture = GD.Load<Texture2D>("res://assets/images/radar_grid.svg");
+        _backgroundSprite.StretchMode = TextureRect.StretchModeEnum.Tile;
+        _backgroundSprite.AnchorRight = 1;
+        _backgroundSprite.AnchorBottom = 1;   // stretch to fill viewport
+        _backgroundSprite.OffsetRight = 0;
+        _backgroundSprite.OffsetBottom = 0;
+
+        canvasLayer.AddChild(_backgroundSprite);
+        AddChild(canvasLayer);
+        
         // Generate solar system
         Random mainRandom = new Random();
         int worldSeed = mainRandom.Next();
@@ -23,7 +41,6 @@ public partial class GameWorld2d : Node2D
         {
             SolarSystemGenerationService solarSystemGenerator = new SolarSystemGenerationService();
             _solarSystem = solarSystemGenerator.GenerateSolarSystem(worldSeed);
-            IGameJsonSerializable.ToJson<SolarSystem>("./docs/solar_system.json", _solarSystem);
             OrbitalBody centralStar = _solarSystem.Star;
             OrbitalBody centralPlanet = _solarSystem.OrbitalBodies.Find((body => body.Type == OrbitalBodyType.CentralPlanet));
             List<OrbitalBody> planets = _solarSystem.OrbitalBodies.FindAll((body => body.Type is OrbitalBodyType.Planet or OrbitalBodyType.DwarfPlanet));
@@ -31,35 +48,41 @@ public partial class GameWorld2d : Node2D
             
             DefaultSolarObject centralStarInstance = CreateNewSolarObject(centralStar);
             AddChild(centralStarInstance);
-            centralStarInstance.Position = GetViewport().GetVisibleRect().Size / 2;
+            centralStarInstance.Position = GetViewport().GetVisibleRect().GetCenter();
             
             DefaultSolarObject centralPlanetInstance = CreateNewSolarObject(centralPlanet);
             centralStarInstance.AddChild(centralPlanetInstance);
 
-            int lastCountedMoonIndex = 0;
-            // Generate regular planets/dwarf planets
-            planets.ForEach((planet) =>
+            if (planets is not null && planets.Count > 0)
             {
-                DefaultSolarObject planetInstance = CreateNewSolarObject(planet);
-                int targetMoonCount = mainRandom.Next(GameplayConstants.MinMoons, GameplayConstants.MaxMoons);
-                centralStarInstance.AddChild(planetInstance);
-            
-                // Fetch assigned moons
-                if (moons.Count <= 0) return;
-                var availableMoons = Math.Min(targetMoonCount, moons.Count - lastCountedMoonIndex);
-                var assignedMoons = moons.Slice(lastCountedMoonIndex, availableMoons);
-                assignedMoons.ForEach((moon) =>
+                int lastCountedMoonIndex = 0;
+                
+                // Generate regular planets/dwarf planets
+                planets.ForEach((planet) =>
                 {
-                    var moonInstance = CreateNewSolarObject(moon);
-                    planetInstance.AddChild(moonInstance);
+                    DefaultSolarObject planetInstance = CreateNewSolarObject(planet);
+                    int targetMoonCount = mainRandom.Next(GameplayConstants.MinMoons, GameplayConstants.MaxMoons);
+                    centralStarInstance.AddChild(planetInstance);
+            
+                    // Fetch assigned moons
+                    if (moons.Count <= 0) return;
+                    var availableMoons = Math.Min(targetMoonCount, moons.Count - lastCountedMoonIndex);
+                    if (availableMoons <= 0) return;
+                    var assignedMoons = moons.Slice(lastCountedMoonIndex, availableMoons);
+                    assignedMoons.ForEach((moon) =>
+                    {
+                        var moonInstance = CreateNewSolarObject(moon);
+                        planetInstance.AddChild(moonInstance);
+                    });
+                    lastCountedMoonIndex += targetMoonCount;
                 });
-                lastCountedMoonIndex += targetMoonCount;
-            });
+            }
+            
         }
         catch (Exception exception)
         {
             GD.PrintErr(exception);
-            return;
+            throw;
         }
         
         GD.Print("Add game hud to scene");
