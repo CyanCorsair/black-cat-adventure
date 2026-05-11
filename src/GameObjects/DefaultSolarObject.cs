@@ -10,6 +10,7 @@ public partial class DefaultSolarObject : Node2D
     private Area2D _interactionArea;
     private OrbitalBody _orbitalBodyDefinition;
 
+    private double _semiLatusRectum;
     private double _currentAngle;
     private DefaultSolarObject _parent;
     
@@ -37,21 +38,51 @@ public partial class DefaultSolarObject : Node2D
         _parent = _orbitalBodyDefinition.ParentId is not null ? GetParent<DefaultSolarObject>() : null;
         Id = _orbitalBodyDefinition.Id;
 
-        _currentAngle = OrbitalBodyDefinition.InitialAngle;
+        _currentAngle = OrbitalBodyDefinition.InitialAngle + Math.PI;
+        _semiLatusRectum = _orbitalBodyDefinition.OrbitalRadius * 
+            (1 - _orbitalBodyDefinition.Eccentricity * _orbitalBodyDefinition.Eccentricity);
     }
 
     public override void _Process(double delta)
     {
         var origin = _parent?.GlobalPosition ?? GetViewport().GetVisibleRect().GetCenter();
         
-        if (_orbitalBodyDefinition is not null)
+        if (_orbitalBodyDefinition is not null && _orbitalBodyDefinition.Type != OrbitalBodyType.Star)
         {
             _currentAngle += _orbitalBodyDefinition.OrbitalSpeed * delta;
+            double r = _semiLatusRectum / (1 + _orbitalBodyDefinition.Eccentricity * Math.Cos(_currentAngle));
             GlobalPosition = origin + new Vector2(
-                (float)(Math.Cos(_currentAngle) * _orbitalBodyDefinition.OrbitalRadius),
-                (float)(Math.Sin(_currentAngle) * _orbitalBodyDefinition.OrbitalRadius)
+                (float)(Math.Cos(_currentAngle) * r),
+                (float)(Math.Sin(_currentAngle) * r)
             );
         }
+    }
+    
+    public Line2D CreateOrbitLine(int resolution = 128)
+    {
+        var line = new Line2D();
+        line.Width = 0.5f;
+        line.DefaultColor = new Color(0.08f, 0.25f, 0.12f);
+
+        double a = _orbitalBodyDefinition.OrbitalRadius;
+        double e = _orbitalBodyDefinition.Eccentricity;
+        double b = a * Math.Sqrt(1 - e * e);
+        double c = a * e;
+
+        var points = new Vector2[resolution + 1];
+
+        for (int i = 0; i < resolution; i++)
+        {
+            double angle = 2 * Math.PI * i / resolution;
+            points[i] = new Vector2(
+                (float)(a * Math.Cos(angle) - c),  // shift so focus (parent) is at local origin
+                (float)(b * Math.Sin(angle))
+            );
+        }
+        points[resolution] = points[0]; // close the loop
+
+        line.Points = points;
+        return line;
     }
 
     private void OnMouseEnterInteractionArea()

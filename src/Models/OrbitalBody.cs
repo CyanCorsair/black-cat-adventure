@@ -27,6 +27,7 @@ public class OrbitalBody : IGameJsonSerializable
     public double OrbitalSpeed { get; set; } = 0;
     public double InitialAngle { get; set; } = 0;
     public string? ParentId { get; set; }
+    public double Eccentricity { get; set; } = 0;
 
     public double PhysicalRadius { get; set; } = 0;
     public double Density { get; set; } = 0;
@@ -59,6 +60,7 @@ public class OrbitalBody : IGameJsonSerializable
         Mass = Mass > 0 // If set, use provided val; just keep it consistent
             ? Mass
             : Density * (4.0 / 3.0) * Math.PI * Math.Pow(PhysicalRadius, 3);
+        Eccentricity = randomSeed.NextDouble() * PhysicsConstants.MaxEccentricity;
     }
 
     private void SetOrbitalProperties(SolarSystemGenerationContext context, int index)

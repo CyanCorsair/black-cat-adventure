@@ -14,12 +14,13 @@ public static class PhysicsConstants
     public static readonly double MaxDensity = 3.0;
     public static readonly double MinStarDensity = 1.0;
     public static readonly double MaxStarDensity = 4.0;
-    public static readonly double GravitationalConstant = 0.0067;
+    public static readonly double GravitationalConstant = 1.0;
     public static readonly double SpreadVariance = 0.4;
-    public static readonly double MediumPlanetMassBreakpoint = 3.0;
-    public static readonly double LargePlanetMassBreakpoint = 8.0;
+    public static readonly double MediumPlanetMassBreakpoint = 2.0;
+    public static readonly double LargePlanetMassBreakpoint = 5.0;
     public static readonly double MinOrbitalRadius = 100.0;
     public static readonly double MaxOrbitalRadius = 10000.0;
     public static readonly double MinMoonOrbitalRadius = 100.0;
     public static readonly double MaxMoonOrbitalRadius = 150.0;
+    public static readonly double MaxEccentricity = 0.5;
 }

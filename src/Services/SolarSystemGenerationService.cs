@@ -8,7 +8,7 @@ namespace BlackCatAdventure.Services;
 public class SolarSystemGenerationContext
 {
     public Random Random { get; init; }
-    public double StarMass { get; init; }
+    public double StarMass { get; set; }
     public int PlanetCount { get; init; }
     public double BaseDistance { get; init; }
     public double SpacingFactor { get; init; }
@@ -28,33 +28,31 @@ public class SolarSystemGenerationService
     
     public SolarSystem GenerateSolarSystem(int? seed = null)
     {
-        var randomSeed = seed.HasValue ? new Random(seed.Value) : new Random();
+        _context = new SolarSystemGenerationContext()
+        {
+            Random = seed.HasValue ? new Random(seed.Value) : new Random(),
+            BaseDistance = _baseDistance,
+            SpacingFactor =  _spacingFactor,
+            PlanetCount = PlanetCount,
+            WorldSeed = seed
+        };
         SolarSystem solarSystem = new()
         {
             Id = Guid.NewGuid().ToString(),
             Name = "Solar System",
         };
-        solarSystem.Star = GenerateSystemStar(randomSeed);
+        solarSystem.Star = GenerateSystemStar(_context.Random);
         _centralStar = solarSystem.Star;
-        
-        _context = new SolarSystemGenerationContext()
-        {
-            Random = randomSeed,
-            BaseDistance = _baseDistance,
-            SpacingFactor =  _spacingFactor,
-            StarMass = _centralStar.Mass,
-            PlanetCount = PlanetCount,
-            WorldSeed = seed
-        };
+        _context.StarMass = _centralStar.Mass;
         
         // Generate central planet
-        var centralPlanet = GenerateCentralPlanet(randomSeed);
+        var centralPlanet = GenerateCentralPlanet(_context.Random);
         solarSystem.OrbitalBodies.Add(centralPlanet);
 
         for (int i = 1; i < PlanetCount; i++)
         {
             solarSystem.OrbitalBodies.Add(
-                GenerateOrbitalBody(randomSeed, i));
+                GenerateOrbitalBody(_context.Random, i));
         }
         
         return solarSystem;

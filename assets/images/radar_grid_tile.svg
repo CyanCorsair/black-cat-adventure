@@ -1,0 +1,18 @@
+<svg viewBox="0 0 256 256" width="256" height="256" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- Cell background -->
+  <rect width="256" height="256" fill="#030d08"/>
+
+  <!-- All four edges so the tile looks correct standalone and when tiled -->
+  <line x1="0.5" y1="0" x2="0.5" y2="256" stroke="#0a1f0e" stroke-width="1"/>
+  <line x1="255.5" y1="0" x2="255.5" y2="256" stroke="#0a1f0e" stroke-width="1"/>
+  <line x1="0" y1="0.5" x2="256" y2="0.5" stroke="#0a1f0e" stroke-width="1"/>
+  <line x1="0" y1="255.5" x2="256" y2="255.5" stroke="#0a1f0e" stroke-width="1"/>
+
+  <!-- Corner dots -->
+  <circle cx="0.5" cy="0.5" r="3" fill="#0d2a15"/>
+  <circle cx="255.5" cy="0.5" r="3" fill="#0d2a15"/>
+  <circle cx="0.5" cy="255.5" r="3" fill="#0d2a15"/>
+  <circle cx="255.5" cy="255.5" r="3" fill="#0d2a15"/>
+
+</svg>

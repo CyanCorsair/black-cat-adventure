@@ -24,8 +24,9 @@ public partial class GameWorld2d : Node2D
         canvasLayer.Layer = -1; // behind everything
 
         _backgroundSprite = new TextureRect();
-        _backgroundSprite.Texture = GD.Load<Texture2D>("res://assets/images/radar_grid.svg");
+        _backgroundSprite.Texture = GD.Load<Texture2D>("res://assets/images/radar_grid_tile.svg");
         _backgroundSprite.StretchMode = TextureRect.StretchModeEnum.Tile;
+        _backgroundSprite.TextureRepeat = TextureRepeatEnum.Enabled;
         _backgroundSprite.AnchorRight = 1;
         _backgroundSprite.AnchorBottom = 1;   // stretch to fill viewport
         _backgroundSprite.OffsetRight = 0;
@@ -52,6 +53,8 @@ public partial class GameWorld2d : Node2D
             
             DefaultSolarObject centralPlanetInstance = CreateNewSolarObject(centralPlanet);
             centralStarInstance.AddChild(centralPlanetInstance);
+            var planetOrbit = centralPlanetInstance.CreateOrbitLine();
+            centralStarInstance.AddChild(planetOrbit);
 
             if (planets is not null && planets.Count > 0)
             {
@@ -63,6 +66,8 @@ public partial class GameWorld2d : Node2D
                     DefaultSolarObject planetInstance = CreateNewSolarObject(planet);
                     int targetMoonCount = mainRandom.Next(GameplayConstants.MinMoons, GameplayConstants.MaxMoons);
                     centralStarInstance.AddChild(planetInstance);
+                    var orbitLine = planetInstance.CreateOrbitLine();
+                    centralStarInstance.AddChild(orbitLine);
             
                     // Fetch assigned moons
                     if (moons.Count <= 0) return;
@@ -73,6 +78,8 @@ public partial class GameWorld2d : Node2D
                     {
                         var moonInstance = CreateNewSolarObject(moon);
                         planetInstance.AddChild(moonInstance);
+                        var moonOrbitLine = moonInstance.CreateOrbitLine();
+                        planetInstance.AddChild(moonOrbitLine);
                     });
                     lastCountedMoonIndex += targetMoonCount;
                 });
