@@ -23,7 +23,7 @@ public class SolarSystemGenerationService
 
     private OrbitalBody _centralStar;
     
-    public const int PlanetCount = 12;
+    public const int PlanetCount = 36;
 
     private SolarSystemGenerationContext _context;
     
@@ -41,6 +41,8 @@ public class SolarSystemGenerationService
         {
             Id = Guid.NewGuid().ToString(),
             Name = "Solar System",
+            Seed = _context.WorldSeed,
+            WorldRandom = _context.Random,
         };
         solarSystem.Star = GenerateSystemStar(_context.Random);
         _centralStar = solarSystem.Star;

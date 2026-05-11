@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using BlackCatAdventure.Constants;
 using BlackCatAdventure.GameObjects;
 using BlackCatAdventure.Interfaces;
@@ -57,39 +58,39 @@ public partial class GameWorld2d : Node2D
             SolarSystemGenerationService solarSystemGenerator = new SolarSystemGenerationService();
             _solarSystem = solarSystemGenerator.GenerateSolarSystem(worldSeed);
             ServicesProvider.Instance.CurrentSolarSystem = _solarSystem;
-            var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
-            GD.Print($"Autosaving solar system {_solarSystem.Id}_{timestamp}.json");
-            _eventBus.Publish(new GameEvents.SaveGameEvent()
-            {
-                SaveGameTitle = $"{_solarSystem.Id}_{timestamp}.json",
-                SolarSystem = _solarSystem
-            });
-            GD.Print($"Autosave done");
             
             OrbitalBody centralStar = _solarSystem.Star;
-            OrbitalBody centralPlanet = _solarSystem.OrbitalBodies.Find((body => body.Type == OrbitalBodyType.CentralPlanet));
-            List<OrbitalBody> planets = _solarSystem.OrbitalBodies.FindAll((body => body.Type is OrbitalBodyType.Planet or OrbitalBodyType.DwarfPlanet));
-            List<OrbitalBody> moons = _solarSystem.OrbitalBodies.FindAll((body => body.Type == OrbitalBodyType.Moon));
+            OrbitalBody centralPlanet = _solarSystem.OrbitalBodies.Find(
+                (body => body.Type == OrbitalBodyType.CentralPlanet));
+            List<OrbitalBody> planets = _solarSystem.OrbitalBodies.FindAll(
+                (body => body.Type is OrbitalBodyType.Planet or OrbitalBodyType.DwarfPlanet));
+            List<OrbitalBody> moons = _solarSystem.OrbitalBodies.FindAll(
+                (body => body.Type == OrbitalBodyType.Moon));
             
             DefaultSolarObject centralStarInstance = CreateNewSolarObject(centralStar);
             AddChild(centralStarInstance);
             centralStarInstance.Position = GetViewport().GetVisibleRect().GetCenter();
+            _solarSystem.Star = centralStarInstance.OrbitalBodyDefinition;
             
             DefaultSolarObject centralPlanetInstance = CreateNewSolarObject(centralPlanet);
             centralStarInstance.AddChild(centralPlanetInstance);
+            _solarSystem.OrbitalBodies[0] = centralStarInstance.OrbitalBodyDefinition;
             var planetOrbit = centralPlanetInstance.CreateOrbitLine();
             centralStarInstance.AddChild(planetOrbit);
 
-            if (planets is not null && planets.Count > 0)
+            if (planets.Count > 0)
             {
                 int lastCountedMoonIndex = 0;
                 
                 // Generate regular planets/dwarf planets
-                planets.ForEach((planet) =>
+                for (int i = 0; i < planets.Count; i++)
                 {
+                    var planet = planets[i];
                     DefaultSolarObject planetInstance = CreateNewSolarObject(planet);
                     int targetMoonCount = mainRandom.Next(GameplayConstants.MinMoons, GameplayConstants.MaxMoons);
                     centralStarInstance.AddChild(planetInstance);
+                    planets[i] = centralStarInstance.OrbitalBodyDefinition;
+                    
                     var orbitLine = planetInstance.CreateOrbitLine();
                     centralStarInstance.AddChild(orbitLine);
             
@@ -106,8 +107,23 @@ public partial class GameWorld2d : Node2D
                         planetInstance.AddChild(moonOrbitLine);
                     });
                     lastCountedMoonIndex += targetMoonCount;
-                });
+                }
             }
+
+            _solarSystem.OrbitalBodies = new() { centralStarInstance.OrbitalBodyDefinition };
+            var updatedList = _solarSystem.OrbitalBodies
+                .Concat(planets)
+                .Concat(moons)
+                .ToList();
+            _solarSystem.OrbitalBodies = updatedList;
+            var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
+            GD.Print($"Autosaving solar system {_solarSystem.Id}_{timestamp}.json");
+            _eventBus.Publish(new GameEvents.SaveGameEvent()
+            {
+                SaveGameTitle = $"{_solarSystem.Id}_{timestamp}.json",
+                SolarSystem = _solarSystem
+            });
+            GD.Print($"Autosave done");
             
         }
         catch (Exception exception)

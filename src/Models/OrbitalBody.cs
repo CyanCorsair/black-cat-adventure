@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using BlackCatAdventure.Constants;
+using BlackCatAdventure.GameObjects;
 using BlackCatAdventure.Interfaces;
 using BlackCatAdventure.Services;
 using Godot;
@@ -32,6 +33,10 @@ public class OrbitalBody : IGameJsonSerializable
     public double PhysicalRadius { get; set; } = 0;
     public double Density { get; set; } = 0;
     public double Mass { get; set; } = 0;
+    
+    // In-game values for node
+    public Vector2? CurrentPosition { get; set; }
+    public double? CurrentAngle { get; set; }
 
     // Asteroid belts only
     public double InnerRadius { get; set; }
@@ -65,16 +70,14 @@ public class OrbitalBody : IGameJsonSerializable
 
     private void SetOrbitalProperties(SolarSystemGenerationContext context, int index)
     {
-        if (OrbitalRadius == 0)
-        {
-            OrbitalRadius = Math.Clamp(
-                context.BaseDistance * Math.Pow(context.SpacingFactor, index),
-                PhysicsConstants.MinOrbitalRadius,
-                PhysicsConstants.MaxOrbitalRadius);
-            OrbitalSpeed = Math.Sqrt(context.StarMass / OrbitalRadius) * PhysicsConstants.GravitationalConstant;
-            InitialAngle = (2 * Math.PI / context.PlanetCount) * index +
-                           (context.Random.NextDouble() * PhysicsConstants.SpreadVariance);
-        }
+        if (OrbitalRadius != 0) return;
+        OrbitalRadius = Math.Clamp(
+            context.BaseDistance * Math.Pow(context.SpacingFactor, index),
+            PhysicsConstants.MinOrbitalRadius,
+            PhysicsConstants.MaxOrbitalRadius);
+        OrbitalSpeed = Math.Sqrt(context.StarMass / OrbitalRadius) * PhysicsConstants.GravitationalConstant;
+        InitialAngle = (2 * Math.PI / context.PlanetCount) * index +
+                       (context.Random.NextDouble() * PhysicsConstants.SpreadVariance);
     }
 }
 
@@ -82,6 +85,8 @@ public class SolarSystem : IGameJsonSerializable
 {
     public string Id { get; set; }
     public string Name { get; set; }
+    public int? Seed { get; set; }
+    public Random WorldRandom { get; set; } = new();
     public OrbitalBody Star { get; set; }
     public List<OrbitalBody> OrbitalBodies { get; set; } = new();
 }

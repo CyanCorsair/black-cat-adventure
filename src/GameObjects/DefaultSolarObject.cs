@@ -1,10 +1,11 @@
 using Godot;
 using System;
+using BlackCatAdventure.Interfaces;
 using BlackCatAdventure.models;
 
 namespace BlackCatAdventure.GameObjects;
 
-public partial class DefaultSolarObject : Node2D
+public partial class DefaultSolarObject : Node2D, IGameJsonSerializable
 {
     private Sprite2D _orbitalBodyIcon;
     private Area2D _interactionArea;
@@ -36,18 +37,29 @@ public partial class DefaultSolarObject : Node2D
         _currentAngle = OrbitalBodyDefinition.InitialAngle + Math.PI;
         _semiLatusRectum = _orbitalBodyDefinition.OrbitalRadius * 
             (1 - _orbitalBodyDefinition.Eccentricity * _orbitalBodyDefinition.Eccentricity);
+
+        if (_orbitalBodyDefinition.CurrentAngle is not null &&
+            _orbitalBodyDefinition.CurrentPosition is not null)
+        {
+            Position = (Vector2)_orbitalBodyDefinition.CurrentPosition;
+            _currentAngle = (double)_orbitalBodyDefinition.CurrentAngle;
+        }
     }
 
     public override void _Process(double delta)
     {
-        if (_orbitalBodyDefinition is not null && _orbitalBodyDefinition.Type != OrbitalBodyType.Star)
+        if (_orbitalBodyDefinition is not null)
         {
+            if (_orbitalBodyDefinition.OrbitalRadius < 0) return;
+            
             _currentAngle = (_currentAngle + _orbitalBodyDefinition.OrbitalSpeed * delta) % (2 * Math.PI);
+            _orbitalBodyDefinition.CurrentAngle = _currentAngle;
             double r = _semiLatusRectum / (1 + _orbitalBodyDefinition.Eccentricity * Math.Cos(_currentAngle));
             Position = new Vector2(
                 (float)(Math.Cos(_currentAngle) * r),
                 (float)(Math.Sin(_currentAngle) * r)
             );
+            _orbitalBodyDefinition.CurrentPosition = Position;
         }
     }
     
