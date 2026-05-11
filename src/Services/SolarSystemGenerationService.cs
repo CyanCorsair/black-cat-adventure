@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using BlackCatAdventure.Constants;
 using BlackCatAdventure.models;
 using Godot;
@@ -49,13 +50,33 @@ public class SolarSystemGenerationService
         var centralPlanet = GenerateCentralPlanet(_context.Random);
         solarSystem.OrbitalBodies.Add(centralPlanet);
 
-        for (int i = 1; i < PlanetCount; i++)
+        for (int i = 2; i < PlanetCount; i++)
         {
             solarSystem.OrbitalBodies.Add(
                 GenerateOrbitalBody(_context.Random, i));
         }
-        
+
+        EnsurePlanetarySeparation(solarSystem.OrbitalBodies
+            .FindAll(b => b.Type != OrbitalBodyType.Moon));
+
         return solarSystem;
+    }
+
+    private void EnsurePlanetarySeparation(List<OrbitalBody> bodies)
+    {
+        bodies.Sort((a, b) => a.OrbitalRadius.CompareTo(b.OrbitalRadius));
+        for (int i = 1; i < bodies.Count; i++)
+        {
+            double minGap = bodies[i - 1].OrbitalRadius * PhysicsConstants.MinOrbitalSeparationRatio;
+            if (bodies[i].OrbitalRadius - bodies[i - 1].OrbitalRadius < minGap)
+            {
+                bodies[i].OrbitalRadius = Math.Min(
+                    bodies[i - 1].OrbitalRadius + minGap,
+                    PhysicsConstants.MaxOrbitalRadius);
+                bodies[i].OrbitalSpeed = Math.Sqrt(_context.StarMass / bodies[i].OrbitalRadius)
+                    * PhysicsConstants.GravitationalConstant;
+            }
+        }
     }
 
     private OrbitalBody GenerateSystemStar(Random random)

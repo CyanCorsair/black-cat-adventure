@@ -1,5 +1,7 @@
 using Godot;
 using System;
+using BlackCatAdventure.models;
+using BlackCatAdventure.Services;
 
 namespace BlackCatAdventure.UI;
 
@@ -11,6 +13,8 @@ public partial class MainMenuButtonsController : BoxContainer
     private Button _optionsButton;
     private Button _exitToMenuGameButton;
     private Button _exitToDesktopGameButton;
+
+    private BasicEventBus _eventBus;
 
     public override void _Ready()
     {
@@ -38,6 +42,8 @@ public partial class MainMenuButtonsController : BoxContainer
             _saveGameButton.Visible = true;
             _exitToMenuGameButton.Visible = true;
         }
+        
+        _eventBus = ServicesProvider.GetService<BasicEventBus>();
     }
 
     private void OnNewGameButtonPressed()

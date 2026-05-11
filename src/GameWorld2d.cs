@@ -16,9 +16,20 @@ public partial class GameWorld2d : Node2D
     
     private Camera2D _camera;
     private TextureRect _backgroundSprite;
+
+    private BasicEventBus _eventBus;
     
     public override void _Ready()
     {
+        _eventBus = ServicesProvider.GetService<BasicEventBus>();
+        _eventBus.Subscribe<GameEvents.SaveGameEndEvent>(saveGameEnd =>
+        {
+            if (saveGameEnd.Status != SaveGameResultStates.SUCCEEDED)
+            {
+                throw new Exception("Saving game failed");
+            }
+        });
+        
         _camera = GetNode<Camera2D>("GameCamera");
         var canvasLayer = new CanvasLayer();
         canvasLayer.Layer = -1; // behind everything
@@ -42,6 +53,13 @@ public partial class GameWorld2d : Node2D
         {
             SolarSystemGenerationService solarSystemGenerator = new SolarSystemGenerationService();
             _solarSystem = solarSystemGenerator.GenerateSolarSystem(worldSeed);
+            GD.Print($"Autosaving solar system {_solarSystem.Id}_{DateTime.UtcNow}.json");
+            _eventBus.Publish(new GameEvents.SaveGameEvent()
+            {
+                SaveGameTitle = $"{_solarSystem.Id}_{DateTime.UtcNow}.json"
+            });
+            GD.Print($"Autosave done");
+            
             OrbitalBody centralStar = _solarSystem.Star;
             OrbitalBody centralPlanet = _solarSystem.OrbitalBodies.Find((body => body.Type == OrbitalBodyType.CentralPlanet));
             List<OrbitalBody> planets = _solarSystem.OrbitalBodies.FindAll((body => body.Type is OrbitalBodyType.Planet or OrbitalBodyType.DwarfPlanet));

@@ -23,4 +23,5 @@ public static class PhysicsConstants
     public static readonly double MinMoonOrbitalRadius = 100.0;
     public static readonly double MaxMoonOrbitalRadius = 150.0;
     public static readonly double MaxEccentricity = 0.5;
+    public static readonly double MinOrbitalSeparationRatio = 0.5;
 }

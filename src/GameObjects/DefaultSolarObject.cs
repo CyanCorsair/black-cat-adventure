@@ -12,7 +12,6 @@ public partial class DefaultSolarObject : Node2D
 
     private double _semiLatusRectum;
     private double _currentAngle;
-    private DefaultSolarObject _parent;
     
     public OrbitalBody OrbitalBodyDefinition { get => _orbitalBodyDefinition; set => _orbitalBodyDefinition = value; }
 
@@ -20,22 +19,18 @@ public partial class DefaultSolarObject : Node2D
     
     public override void _Ready()
     {
-        GlobalScale = new Vector2(
-            (float)_orbitalBodyDefinition.PhysicalRadius,
-            (float)_orbitalBodyDefinition.PhysicalRadius);
-        
         _orbitalBodyIcon = GetNode<Sprite2D>("Icon2D");
-        _orbitalBodyIcon.GlobalScale = GlobalScale;
         _interactionArea = GetNode<Area2D>("InteractionArea2D");
-        _interactionArea.GlobalScale = new Vector2(GlobalScale.X * 2.0f, GlobalScale.Y * 2.0f);
+
+        var physRadius = (float)_orbitalBodyDefinition.PhysicalRadius;
+        _orbitalBodyIcon.GlobalScale = new Vector2(physRadius, physRadius);
+        _interactionArea.GlobalScale = new Vector2(physRadius * 2.0f, physRadius * 2.0f);
         _interactionArea.MouseEntered += OnMouseEnterInteractionArea;
         _interactionArea.MouseExited += OnMouseExitInteractionArea;
-        
 
         var textureFile = GD.Load<Texture2D>(_orbitalBodyDefinition.IconPath);
         _orbitalBodyIcon.Texture = textureFile;
 
-        _parent = _orbitalBodyDefinition.ParentId is not null ? GetParent<DefaultSolarObject>() : null;
         Id = _orbitalBodyDefinition.Id;
 
         _currentAngle = OrbitalBodyDefinition.InitialAngle + Math.PI;
@@ -45,13 +40,11 @@ public partial class DefaultSolarObject : Node2D
 
     public override void _Process(double delta)
     {
-        var origin = _parent?.GlobalPosition ?? GetViewport().GetVisibleRect().GetCenter();
-        
         if (_orbitalBodyDefinition is not null && _orbitalBodyDefinition.Type != OrbitalBodyType.Star)
         {
-            _currentAngle += _orbitalBodyDefinition.OrbitalSpeed * delta;
+            _currentAngle = (_currentAngle + _orbitalBodyDefinition.OrbitalSpeed * delta) % (2 * Math.PI);
             double r = _semiLatusRectum / (1 + _orbitalBodyDefinition.Eccentricity * Math.Cos(_currentAngle));
-            GlobalPosition = origin + new Vector2(
+            Position = new Vector2(
                 (float)(Math.Cos(_currentAngle) * r),
                 (float)(Math.Sin(_currentAngle) * r)
             );

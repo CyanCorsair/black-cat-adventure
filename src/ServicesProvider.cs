@@ -1,4 +1,6 @@
-﻿using Godot;
+﻿using System;
+using BlackCatAdventure.Services;
+using Godot;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BlackCatAdventure;
@@ -10,12 +12,17 @@ public partial class ServicesProvider : Node
     
     public static ServicesProvider Instance { get; private set; }
     public bool IsInGame = false;
+    public string DesiredSaveGame = String.Empty;
+    
 
     public override void _Ready()
     {
         Instance = this;
         
         _services = new ServiceCollection();
+
+        _services.AddSingleton<BasicEventBus>();
+        _services.AddSingleton<SaveLoadService>();
         
         _serviceProvider = _services.BuildServiceProvider();
     }
