@@ -27,7 +27,7 @@ public class SaveLoadService
 
         try
         {
-            IGameJsonSerializable.ToJson($"user://{saveName}", systemState);
+            IGameJsonSerializable.ToJson($"user://gameSave_{saveName}", systemState);
             saveGameEndEvent.Status = SaveGameResultStates.SUCCEEDED;
         }
         catch (Exception exception)
@@ -48,7 +48,7 @@ public class SaveLoadService
 
         try
         {
-            SolarSystem saveData = IGameJsonSerializable.FromJson<SolarSystem>($"user://{saveName}");
+            SolarSystem saveData = IGameJsonSerializable.FromJson<SolarSystem>($"user://gameSave_{saveName}");
             loadGameEndEvent.SolarSystem = saveData;
             loadGameEndEvent.Status = LoadGameResultStates.SUCCEEDED;
         }
