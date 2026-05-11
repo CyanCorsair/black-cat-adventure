@@ -5,19 +5,30 @@ using Godot;
 
 namespace BlackCatAdventure.Services;
 
+public class SolarSystemGenerationContext
+{
+    public Random Random { get; init; }
+    public double StarMass { get; init; }
+    public int PlanetCount { get; init; }
+    public double BaseDistance { get; init; }
+    public double SpacingFactor { get; init; }
+    public int? WorldSeed { get; init; }
+}
+
 public class SolarSystemGenerationService
 {
-    private readonly double _baseDistance = 150.0;
-    private readonly double _spacingFactor = 1.5;
+    private readonly double _baseDistance = 100.0;
+    private readonly double _spacingFactor = 1.6;
 
     private OrbitalBody _centralStar;
     
-    public const int PlanetCount = 8;
-    public double CentralStarMass = 0;
+    public const int PlanetCount = 12;
+
+    private SolarSystemGenerationContext _context;
     
     public SolarSystem GenerateSolarSystem(int? seed = null)
     {
-        Random randomSeed = seed.HasValue ? new Random(seed.Value) : new Random();
+        var randomSeed = seed.HasValue ? new Random(seed.Value) : new Random();
         SolarSystem solarSystem = new()
         {
             Id = Guid.NewGuid().ToString(),
@@ -25,6 +36,16 @@ public class SolarSystemGenerationService
         };
         solarSystem.Star = GenerateSystemStar(randomSeed);
         _centralStar = solarSystem.Star;
+        
+        _context = new SolarSystemGenerationContext()
+        {
+            Random = randomSeed,
+            BaseDistance = _baseDistance,
+            SpacingFactor =  _spacingFactor,
+            StarMass = _centralStar.Mass,
+            PlanetCount = PlanetCount,
+            WorldSeed = seed
+        };
         
         // Generate central planet
         var centralPlanet = GenerateCentralPlanet(randomSeed);
@@ -57,16 +78,11 @@ public class SolarSystemGenerationService
         };
 
         centralStar.SetOrbitalBodyPhysicsProperties(
-            random,
-            0,
-            _baseDistance,
-            _spacingFactor,
-            0,
-            PlanetCount);
+            _context,
+            0);
 
         centralStar.IconPath = GameplayConstants.StationIconPath;
         centralStar.Type = OrbitalBodyType.Star;
-        CentralStarMass = centralStar.Mass;
         return centralStar;
     }
 
@@ -85,12 +101,8 @@ public class SolarSystemGenerationService
             ParentId = _centralStar.Id,
         };
         centralPlanet.SetOrbitalBodyPhysicsProperties(
-            random,
-            1,
-            _baseDistance,
-            _spacingFactor,
-            CentralStarMass,
-            PlanetCount);
+            _context,
+            1);
         
         centralPlanet.IconPath = GameplayConstants.PlanetIconPath;
         centralPlanet.Type = OrbitalBodyType.CentralPlanet;
@@ -109,12 +121,8 @@ public class SolarSystemGenerationService
         };
             
         newPlanet.SetOrbitalBodyPhysicsProperties(
-            random,
-            index,
-            _baseDistance,
-            _spacingFactor,
-            CentralStarMass,
-            PlanetCount);
+            _context,
+            index);
 
         newPlanet.IconPath = GameplayConstants.PlanetIconPath;
         
@@ -122,6 +130,10 @@ public class SolarSystemGenerationService
         {
             newPlanet.Type = OrbitalBodyType.Moon;
             newPlanet.IconPath = GameplayConstants.MoonIconPath;
+            newPlanet.OrbitalRadius = Math.Clamp(
+                newPlanet.OrbitalRadius,
+                PhysicsConstants.MinMoonOrbitalRadius,
+                PhysicsConstants.MaxMoonOrbitalRadius);
         }
         else if (newPlanet.Mass >= PhysicsConstants.MediumPlanetMassBreakpoint &&
                  newPlanet.Mass < PhysicsConstants.LargePlanetMassBreakpoint)

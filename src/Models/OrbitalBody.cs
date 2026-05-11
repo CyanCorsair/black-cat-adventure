@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using BlackCatAdventure.Constants;
 using BlackCatAdventure.Interfaces;
+using BlackCatAdventure.Services;
 using Godot;
 
 namespace BlackCatAdventure.models;
@@ -35,38 +36,43 @@ public class OrbitalBody : IGameJsonSerializable
     public double InnerRadius { get; set; }
     public double OuterRadius { get; set; }
 
-    public void SetOrbitalBodyPhysicsProperties(
-        Random randomSeed,
-        int index,
-        double baseDistance,
-        double spacingFactor,
-        double starMass,
-        int planetCount)
+    public void SetOrbitalBodyPhysicsProperties(SolarSystemGenerationContext context, int index)
     {
-        PhysicalRadius = PhysicalRadius > 0
+        SetBasePhysicsProperties(context.Random);
+        SetOrbitalProperties(context, index);
+
+        GD.Print($"Physical radius: {PhysicalRadius} \n\n" +
+                 $"Density: {Density} \n\n" +
+                 $"Mass: {Mass} \n\n");
+    }
+
+    private void SetBasePhysicsProperties(Random randomSeed)
+    {
+        PhysicalRadius = PhysicalRadius > 0 // If set, is central star/main planet; use provided val
             ? PhysicalRadius
             : randomSeed.NextDouble() * (
                 PhysicsConstants.MaxRadius - PhysicsConstants.MinRadius) + PhysicsConstants.MinRadius;
-        Density = Density > 0
+        Density = Density > 0 // If set, is central star/main planet; use provided val
             ? Density
             : randomSeed.NextDouble() * (
                 PhysicsConstants.MaxDensity - PhysicsConstants.MinDensity) + PhysicsConstants.MinDensity;
-        Mass = Density * (4.0 / 3.0) * Math.PI * Math.Pow(PhysicalRadius, 3);
-        
+        Mass = Mass > 0 // If set, use provided val; just keep it consistent
+            ? Mass
+            : Density * (4.0 / 3.0) * Math.PI * Math.Pow(PhysicalRadius, 3);
+    }
+
+    private void SetOrbitalProperties(SolarSystemGenerationContext context, int index)
+    {
         if (OrbitalRadius == 0)
         {
             OrbitalRadius = Math.Clamp(
-                baseDistance * Math.Pow(spacingFactor, index),
+                context.BaseDistance * Math.Pow(context.SpacingFactor, index),
                 PhysicsConstants.MinOrbitalRadius,
                 PhysicsConstants.MaxOrbitalRadius);
-            OrbitalSpeed = Math.Sqrt(starMass / OrbitalRadius) * PhysicsConstants.GravitationalConstant;
-            InitialAngle = (2 * Math.PI / planetCount) * index +
-                           (randomSeed.NextDouble() * PhysicsConstants.SpreadVariance);
+            OrbitalSpeed = Math.Sqrt(context.StarMass / OrbitalRadius) * PhysicsConstants.GravitationalConstant;
+            InitialAngle = (2 * Math.PI / context.PlanetCount) * index +
+                           (context.Random.NextDouble() * PhysicsConstants.SpreadVariance);
         }
-
-        // GD.Print($"Physical radius: {PhysicalRadius} \n\n" +
-        //          $"Density: {Density} \n\n" +
-        //          $"Mass: {Mass} \n\n");
     }
 }
 
