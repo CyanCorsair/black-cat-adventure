@@ -7,5 +7,4 @@
 script = ExtResource("1_ftb0i")
 
 [node name="GameCamera" type="Camera2D" parent="." unique_id=534735544]
-zoom = Vector2(0.3, 0.3)
 script = ExtResource("2_iwvfb")

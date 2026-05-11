@@ -7,8 +7,8 @@ namespace BlackCatAdventure.Services;
 
 public class SolarSystemGenerationService
 {
-    private readonly double _baseDistance = 100.0;
-    private readonly double _spacingFactor = 1.6;
+    private readonly double _baseDistance = 150.0;
+    private readonly double _spacingFactor = 1.5;
 
     private OrbitalBody _centralStar;
     

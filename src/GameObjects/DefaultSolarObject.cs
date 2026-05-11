@@ -26,7 +26,7 @@ public partial class DefaultSolarObject : Node2D
         _orbitalBodyIcon = GetNode<Sprite2D>("Icon2D");
         _orbitalBodyIcon.GlobalScale = GlobalScale;
         _interactionArea = GetNode<Area2D>("InteractionArea2D");
-        // _interactionArea.GlobalScale = new Vector2(GlobalScale.X * 1.15f, GlobalScale.Y * 1.15f);
+        _interactionArea.GlobalScale = new Vector2(GlobalScale.X * 2.0f, GlobalScale.Y * 2.0f);
         _interactionArea.MouseEntered += OnMouseEnterInteractionArea;
         _interactionArea.MouseExited += OnMouseExitInteractionArea;
         
