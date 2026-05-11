@@ -18,7 +18,7 @@ public interface IGameJsonSerializable
         try
         {
             var json = JsonSerializer.Serialize(targetData, new JsonSerializerOptions() { WriteIndented = true });
-            using var saveFile = FileAccess.Open(inputPath, FileAccess.ModeFlags.WriteRead);
+            using var saveFile = FileAccess.Open(inputPath, FileAccess.ModeFlags.Write);
             saveFile.StoreLine(json);
         }
         catch
