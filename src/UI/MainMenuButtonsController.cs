@@ -43,7 +43,7 @@ public partial class MainMenuButtonsController : BoxContainer
             _exitToMenuGameButton.Visible = true;
         }
         
-        _eventBus = ServicesProvider.GetService<BasicEventBus>();
+        _eventBus = ServicesProvider.Instance.GetService<BasicEventBus>();
     }
 
     private void OnNewGameButtonPressed()
@@ -63,7 +63,17 @@ public partial class MainMenuButtonsController : BoxContainer
     
     private void OnSaveGameButtonPressed()
     {
-        GD.Print("Save game state");
+        var solarSystem = ServicesProvider.Instance.CurrentSolarSystem;
+        if (solarSystem is null)
+        {
+            GD.PrintErr("Cannot save: no active solar system");
+            return;
+        }
+        _eventBus.Publish(new GameEvents.SaveGameEvent()
+        {
+            SaveGameTitle = ServicesProvider.Instance.DesiredSaveGame,
+            SolarSystem = solarSystem
+        });
     }
 
     private void OnLoadGameButtonPressed()

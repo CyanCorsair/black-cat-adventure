@@ -1,4 +1,5 @@
 ﻿using System;
+using BlackCatAdventure.models;
 using BlackCatAdventure.Services;
 using Godot;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,6 +14,7 @@ public partial class ServicesProvider : Node
     public static ServicesProvider Instance { get; private set; }
     public bool IsInGame = false;
     public string DesiredSaveGame = String.Empty;
+    public SolarSystem CurrentSolarSystem = null;
     
 
     public override void _Ready()
@@ -20,14 +22,16 @@ public partial class ServicesProvider : Node
         Instance = this;
         
         _services = new ServiceCollection();
+        var eventBus = new BasicEventBus();
 
-        _services.AddSingleton<BasicEventBus>();
+        _services.AddSingleton(eventBus);
         _services.AddSingleton<SaveLoadService>();
         
         _serviceProvider = _services.BuildServiceProvider();
+        _serviceProvider.GetService<SaveLoadService>(); // eagerly instantiate so event subscriptions are registered
     }
 
-    public static T GetService<T>()
+    public T GetService<T>()
     {
         if (_serviceProvider == null)
         {

@@ -11,7 +11,7 @@ public class SaveLoadService
 
     public SaveLoadService()
     {
-        _eventBus = ServicesProvider.GetService<BasicEventBus>();
+        _eventBus = ServicesProvider.Instance.GetService<BasicEventBus>();
         _eventBus.Subscribe<GameEvents.SaveGameEvent>(saveGameEvent => SaveGame(
             saveGameEvent.SolarSystem, saveGameEvent.SaveGameTitle));
         _eventBus.Subscribe<GameEvents.LoadGameEvent>(loadGameEvent => LoadGame(
@@ -27,7 +27,7 @@ public class SaveLoadService
 
         try
         {
-            IGameJsonSerializable.ToJson($"user://saves/{saveName}", systemState);
+            IGameJsonSerializable.ToJson($"user://{saveName}", systemState);
             saveGameEndEvent.Status = SaveGameResultStates.SUCCEEDED;
         }
         catch (Exception exception)
@@ -48,7 +48,7 @@ public class SaveLoadService
 
         try
         {
-            SolarSystem saveData = IGameJsonSerializable.FromJson<SolarSystem>($"user://saves/{saveName}");
+            SolarSystem saveData = IGameJsonSerializable.FromJson<SolarSystem>($"user://{saveName}");
             loadGameEndEvent.SolarSystem = saveData;
             loadGameEndEvent.Status = LoadGameResultStates.SUCCEEDED;
         }

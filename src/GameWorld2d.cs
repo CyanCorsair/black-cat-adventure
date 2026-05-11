@@ -21,13 +21,16 @@ public partial class GameWorld2d : Node2D
     
     public override void _Ready()
     {
-        _eventBus = ServicesProvider.GetService<BasicEventBus>();
+        _eventBus = ServicesProvider.Instance.GetService<BasicEventBus>();
         _eventBus.Subscribe<GameEvents.SaveGameEndEvent>(saveGameEnd =>
         {
             if (saveGameEnd.Status != SaveGameResultStates.SUCCEEDED)
             {
+                GD.PrintErr("Save game failed");
                 throw new Exception("Saving game failed");
             }
+
+            GD.Print("Save game succeeded");
         });
         
         _camera = GetNode<Camera2D>("GameCamera");
@@ -39,7 +42,7 @@ public partial class GameWorld2d : Node2D
         _backgroundSprite.StretchMode = TextureRect.StretchModeEnum.Tile;
         _backgroundSprite.TextureRepeat = TextureRepeatEnum.Enabled;
         _backgroundSprite.AnchorRight = 1;
-        _backgroundSprite.AnchorBottom = 1;   // stretch to fill viewport
+        _backgroundSprite.AnchorBottom = 1; // stretch to fill viewport
         _backgroundSprite.OffsetRight = 0;
         _backgroundSprite.OffsetBottom = 0;
 
@@ -53,10 +56,13 @@ public partial class GameWorld2d : Node2D
         {
             SolarSystemGenerationService solarSystemGenerator = new SolarSystemGenerationService();
             _solarSystem = solarSystemGenerator.GenerateSolarSystem(worldSeed);
-            GD.Print($"Autosaving solar system {_solarSystem.Id}_{DateTime.UtcNow}.json");
+            ServicesProvider.Instance.CurrentSolarSystem = _solarSystem;
+            var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
+            GD.Print($"Autosaving solar system {_solarSystem.Id}_{timestamp}.json");
             _eventBus.Publish(new GameEvents.SaveGameEvent()
             {
-                SaveGameTitle = $"{_solarSystem.Id}_{DateTime.UtcNow}.json"
+                SaveGameTitle = $"{_solarSystem.Id}_{timestamp}.json",
+                SolarSystem = _solarSystem
             });
             GD.Print($"Autosave done");
             
