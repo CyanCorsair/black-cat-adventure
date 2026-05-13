@@ -23,8 +23,10 @@ public partial class ServicesProvider : Node
         
         _services = new ServiceCollection();
         var eventBus = new BasicEventBus();
+        var guiEventBus = new GuiEventBus();
 
         _services.AddSingleton(eventBus);
+        _services.AddSingleton(guiEventBus);
         _services.AddSingleton<SaveLoadService>();
         
         _serviceProvider = _services.BuildServiceProvider();

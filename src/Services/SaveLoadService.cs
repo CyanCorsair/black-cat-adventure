@@ -28,12 +28,12 @@ public class SaveLoadService
         try
         {
             IGameJsonSerializable.ToJson($"user://gameSave_{saveName}", systemState);
-            saveGameEndEvent.Status = SaveGameResultStates.SUCCEEDED;
+            saveGameEndEvent.Status = SaveGameResultStates.Succeeded;
         }
         catch (Exception exception)
         {
             GD.PrintErr(exception);
-            saveGameEndEvent.Status = SaveGameResultStates.FAILED_ERRORED;
+            saveGameEndEvent.Status = SaveGameResultStates.FailedErrored;
         }
         
         _eventBus.Publish(saveGameEndEvent);
@@ -50,12 +50,12 @@ public class SaveLoadService
         {
             SolarSystem saveData = IGameJsonSerializable.FromJson<SolarSystem>($"user://gameSave_{saveName}");
             loadGameEndEvent.SolarSystem = saveData;
-            loadGameEndEvent.Status = LoadGameResultStates.SUCCEEDED;
+            loadGameEndEvent.Status = LoadGameResultStates.Succeeded;
         }
         catch (Exception exception)
         {
             GD.PrintErr(exception);
-            loadGameEndEvent.Status = LoadGameResultStates.FAILED_ERRORED;
+            loadGameEndEvent.Status = LoadGameResultStates.FailedErrored;
         }
         
         _eventBus.Publish(loadGameEndEvent);

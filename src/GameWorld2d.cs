@@ -10,7 +10,7 @@ using BlackCatAdventure.Services;
 
 namespace BlackCatAdventure;
 
-public partial class GameWorld2d : Node2D
+public partial class GameWorld2D : Node2D
 {
     private SolarSystem _solarSystem;
     private PackedScene _defaultScene = GD.Load<PackedScene>("res://scenes/components/default_solar_object.tscn");
@@ -25,7 +25,7 @@ public partial class GameWorld2d : Node2D
         _eventBus = ServicesProvider.Instance.GetService<BasicEventBus>();
         _eventBus.Subscribe<GameEvents.SaveGameEndEvent>(saveGameEnd =>
         {
-            if (saveGameEnd.Status != SaveGameResultStates.SUCCEEDED)
+            if (saveGameEnd.Status != SaveGameResultStates.Succeeded)
             {
                 GD.PrintErr("Save game failed");
                 throw new Exception("Saving game failed");

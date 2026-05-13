@@ -50,7 +50,7 @@ public partial class MainMenuButtonsController : BoxContainer
     {
         GD.Print("Opening GameWorld2d");
         PackedScene gameWorld2D = GD.Load<PackedScene>("res://scenes/game_world2d.tscn");
-        GameWorld2d sceneInstance = gameWorld2D.Instantiate<GameWorld2d>();
+        GameWorld2D sceneInstance = gameWorld2D.Instantiate<GameWorld2D>();
         FindParent("GameRoot").AddChild(sceneInstance);
         GD.Print("Added gameworld2d to root");
         
@@ -95,7 +95,7 @@ public partial class MainMenuButtonsController : BoxContainer
         GD.Print("Added MainMenu to root");
         
         GD.Print("Removing gameworld2d from scene");
-        GameWorld2d mainMenuInstance = GetTree().Root.GetNode<GameWorld2d>("GameRoot/GameWorld");
+        GameWorld2D mainMenuInstance = GetTree().Root.GetNode<GameWorld2D>("GameRoot/GameWorld");
         mainMenuInstance.Visible = false;
         mainMenuInstance.QueueFree();
         GD.Print("Removed gameworld2d from scene");

@@ -4,7 +4,7 @@ using BlackCatAdventure.Interfaces;
 
 namespace BlackCatAdventure.Services;
 
-public class BasicEventBus: IEventBus
+public class GuiEventBus : IEventBus
 {
     private readonly Dictionary<Type, List<Delegate>> _handlers = new();
 

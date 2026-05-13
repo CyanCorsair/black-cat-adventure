@@ -58,8 +58,7 @@ public class SolarSystemGenerationService
                 GenerateOrbitalBody(_context.Random, i));
         }
 
-        EnsurePlanetarySeparation(solarSystem.OrbitalBodies
-            .FindAll(b => b.Type != OrbitalBodyType.Moon));
+        EnsurePlanetarySeparation(solarSystem.OrbitalBodies);
 
         return solarSystem;
     }
@@ -103,6 +102,7 @@ public class SolarSystemGenerationService
             0);
 
         centralStar.IconPath = GameplayConstants.StationIconPath;
+        centralStar.HighlightedIconPath = GameplayConstants.HighlightedStationIconPath;
         centralStar.Type = OrbitalBodyType.Star;
         return centralStar;
     }
@@ -126,6 +126,7 @@ public class SolarSystemGenerationService
             1);
         
         centralPlanet.IconPath = GameplayConstants.PlanetIconPath;
+        centralPlanet.HighlightedIconPath = GameplayConstants.HighlightedPlanetIconPath;
         centralPlanet.Type = OrbitalBodyType.CentralPlanet;
         
         return centralPlanet;
@@ -151,6 +152,7 @@ public class SolarSystemGenerationService
         {
             newPlanet.Type = OrbitalBodyType.Moon;
             newPlanet.IconPath = GameplayConstants.MoonIconPath;
+            newPlanet.HighlightedIconPath = GameplayConstants.HighlightedMoonIconPath;
             newPlanet.OrbitalRadius = Math.Clamp(
                 newPlanet.OrbitalRadius,
                 PhysicsConstants.MinMoonOrbitalRadius,

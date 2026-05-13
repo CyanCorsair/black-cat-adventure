@@ -2,6 +2,7 @@ using Godot;
 using System;
 using BlackCatAdventure.Interfaces;
 using BlackCatAdventure.models;
+using BlackCatAdventure.Services;
 
 namespace BlackCatAdventure.GameObjects;
 
@@ -11,8 +12,12 @@ public partial class DefaultSolarObject : Node2D, IGameJsonSerializable
     private Area2D _interactionArea;
     private OrbitalBody _orbitalBodyDefinition;
 
+    private bool _highlighted = false;
+
     private double _semiLatusRectum;
     private double _currentAngle;
+    
+    private GuiEventBus _guiEventBus;
     
     public OrbitalBody OrbitalBodyDefinition { get => _orbitalBodyDefinition; set => _orbitalBodyDefinition = value; }
 
@@ -20,12 +25,19 @@ public partial class DefaultSolarObject : Node2D, IGameJsonSerializable
     
     public override void _Ready()
     {
+        _guiEventBus = ServicesProvider.Instance.GetService<GuiEventBus>();
+        _guiEventBus.Subscribe<GuiEvents.GuiUpdateEventSolarObject>(guiUpdate =>
+        {
+            GD.Print($"Update GUI");
+            _orbitalBodyDefinition = guiUpdate.OrbitalBody;
+        });
+        
         _orbitalBodyIcon = GetNode<Sprite2D>("Icon2D");
         _interactionArea = GetNode<Area2D>("InteractionArea2D");
 
         var physRadius = (float)_orbitalBodyDefinition.PhysicalRadius;
         _orbitalBodyIcon.GlobalScale = new Vector2(physRadius, physRadius);
-        _interactionArea.GlobalScale = new Vector2(physRadius * 2.0f, physRadius * 2.0f);
+        _interactionArea.GlobalScale = new Vector2(physRadius * 5.0f, physRadius * 5.0f);
         _interactionArea.MouseEntered += OnMouseEnterInteractionArea;
         _interactionArea.MouseExited += OnMouseExitInteractionArea;
 
@@ -61,6 +73,16 @@ public partial class DefaultSolarObject : Node2D, IGameJsonSerializable
             );
             _orbitalBodyDefinition.CurrentPosition = Position;
         }
+        
+        if (Input.IsActionJustPressed("PrimaryClick"))
+        {
+            OnPrimaryMouseClick();
+        }
+
+        if (Input.IsActionPressed("SecondaryClick"))
+        {
+            OnSecondaryMouseClick();
+        }
     }
     
     public Line2D CreateOrbitLine(int resolution = 128)
@@ -93,10 +115,46 @@ public partial class DefaultSolarObject : Node2D, IGameJsonSerializable
     private void OnMouseEnterInteractionArea()
     {
         GD.Print($"I'm hovering over {_orbitalBodyDefinition.Name}, mass: {_orbitalBodyDefinition.Mass}");
+        ChangeHighlightState(true);
     }
     
     private void OnMouseExitInteractionArea()
     {
         GD.Print($"I'm leaving {_orbitalBodyDefinition.Name}, mass: {_orbitalBodyDefinition.Mass}");
+        ChangeHighlightState(false);
+    }
+
+    private void OnPrimaryMouseClick()
+    {
+        _guiEventBus.Publish(new GuiEvents.GuiOpenInfoDisplayEvent()
+        {
+            
+        });
+        GD.Print($"Primary clicking on {_orbitalBodyDefinition.Name}");
+    }
+    
+    private void OnSecondaryMouseClick()
+    {
+        _guiEventBus.Publish(new GuiEvents.GuiOpenInfoDisplayEvent()
+        {
+            
+        });
+        GD.Print($"Secondary clicking on {_orbitalBodyDefinition.Name}");
+    }
+
+    private void ChangeHighlightState(bool? newState = null)
+    {
+        _highlighted = newState ?? !_highlighted;
+
+        if (_highlighted)
+        {
+            var textureFile = GD.Load<Texture2D>(_orbitalBodyDefinition.HighlightedIconPath);
+            _orbitalBodyIcon.Texture = textureFile;
+        }
+        else
+        {
+            var textureFile = GD.Load<Texture2D>(_orbitalBodyDefinition.IconPath);
+            _orbitalBodyIcon.Texture = textureFile;
+        }
     }
 }

@@ -23,6 +23,7 @@ public class OrbitalBody : IGameJsonSerializable
     public string Id { get; set; }
     public string Name { get; set; }
     public string IconPath { get; set; }
+    public string HighlightedIconPath { get; set; }
     public OrbitalBodyType Type { get; set; }
     public double OrbitalRadius { get; set; } = 0;
     public double OrbitalSpeed { get; set; } = 0;

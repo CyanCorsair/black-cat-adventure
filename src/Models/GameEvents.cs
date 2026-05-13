@@ -2,14 +2,14 @@
 
 public enum SaveGameResultStates
 {
-    SUCCEEDED,
-    FAILED_ERRORED
+    Succeeded,
+    FailedErrored
 }
 
 public enum LoadGameResultStates
 {
-    SUCCEEDED,
-    FAILED_ERRORED
+    Succeeded,
+    FailedErrored
 }
 
 public static class GameEvents
